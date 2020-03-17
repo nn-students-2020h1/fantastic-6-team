@@ -1,0 +1,21 @@
+# ---- ИГНОРИРУЕМ ----
+
+# Любые директории
+/*/
+# Расширения
+*.iml
+*.xml
+*.pyc
+*.idea
+*.vscode
+*.jpeg
+*.html
+*.txt
+
+# ---- НЕ ИГНОРИРУЕМ ----
+!*.py
+!*requirements.txt
+!*.gitignore
+
+
+
