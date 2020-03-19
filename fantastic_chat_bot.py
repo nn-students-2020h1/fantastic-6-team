@@ -25,6 +25,12 @@ import requests
 # рандомные факты про котиков
 from random import randint
 
+# <LESSON 5>
+import csv
+STOP_YEAR = 2019  # до какого года листать базу если не можем получить файл
+COVID_URL = 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/' \
+               'master/csse_covid_19_data/csse_covid_19_daily_reports/'
+
 # <ADDITIONAL>
 # встроенная клавиатура в сообщениях и обработка нажатий
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton
@@ -61,6 +67,8 @@ def cleaner(func_to_decorate):
         rip('log_actions_short.txt')
         rip('log_errors.txt')
         rip('log_errors_short.txt')
+        rip('china_data.csv')
+        rip('china_data_prev.csv')
         func_to_decorate(*args, **kwargs)
     return wrapper
 
@@ -109,8 +117,7 @@ def log_actions(func_to_decorate):
                 # не открывается -> файла нет -> создаем
                 with open('log_actions.txt', 'tw', encoding='utf-8'):
                     pass
-                # файл создан и закрылся после with open, открываем на чтение
-                log_file = open('log_actions.txt', 'r')
+
             now = datetime.datetime.now()
             content = {
                 'time': now.strftime("%H:%M:%S %d.%m.%y"),
@@ -282,6 +289,194 @@ def cat_facts_random(update: Update, context: CallbackContext):
 
 # </LESSON 4>
 # ----------------------------------------------------------
+# <LESSON 5. API Telegram и CSV>
+
+
+def date_to_string(date, human=False, split='-'):
+    """Собираем из словаря date что-то удобное:
+    human=False: название <MM-DD-YYYY>.csv
+    human=True: <DD MM YYYY>, между цифрами split"""
+    # ВАЖНО: в репозитории формат файлов <МЕСЯЦ>-<ДЕНЬ>-<ГОД>!
+    if not human:
+        length = len(str(date['month']))
+        filename = str(date['month']).zfill(3 - length) + '-'
+        length = len(str(date['day']))
+        filename += str(date['day']).zfill(3 - length) + '-'
+        filename += str(date['year']) + '.csv'
+    else:
+        length = len(str(date['day']))
+        filename = str(date['day']).zfill(3 - length) + split
+        length = len(str(date['month']))
+        filename += str(date['month']).zfill(3 - length) + split
+        filename += str(date['year'])
+    return filename
+
+
+def filename_to_date(filename):
+    """Собираем из названия файла удобный словарь для даты"""
+    values = filename[:10].split('-')
+    keys = ['month', 'day', 'year']
+    date = {}
+    for k, v in zip(keys, values):
+        date[k] = int(v)
+    return date
+
+
+def search_back(date, stop_year, from_url):
+    date = date.copy()
+    while True:
+        date['day'] -= 1
+        if date['day'] == 0:
+            date['day'] = 31
+            date['month'] -= 1
+        if date['month'] == 0:
+            date['month'] = 31
+            date['year'] -= 1
+        if date['year'] == stop_year:
+            raise FileNotFoundError
+        filename = date_to_string(date)
+        url = from_url + filename
+        r = requests.get(url)
+        if r.status_code == 200:
+            with open(filename, 'wb') as f:
+                f.write(r.content)
+            return filename
+
+
+@log_actions
+@log_errors
+def corono_stats(update: Update, context: CallbackContext, reply=True):
+    """Получить с github свежие данные по коронавирусу."""
+    filename = None
+    try:
+        # проверяем сегодняшний день
+        date = datetime.datetime.now()
+        date = {'day': date.day, 'month': date.month, 'year': date.year}
+
+        filename = date_to_string(date)
+        url = COVID_URL + filename
+        r = requests.get(url)
+
+        if r.status_code == 200:
+            with open(filename, 'wb') as f:
+                f.write(r.content)
+        else:
+            filename = search_back(date, STOP_YEAR, COVID_URL)
+
+        if reply:
+            # можно вызывать функцию с диалогом пользователя, можно без
+            button_0 = InlineKeyboardButton('Мир', callback_data=f"0-covid-world-{filename}")
+            button_1 = InlineKeyboardButton('Китай', callback_data=f"1-covid-china-{filename}")
+
+            keyboard = [[button_0],
+                        [button_1]]
+
+            keyboard_markup = InlineKeyboardMarkup(keyboard)
+            update.message.reply_text('Где смотрим ситуацию?', reply_markup=keyboard_markup)
+
+    except FileNotFoundError:
+        update.message.reply_text(f"Я проверил данные до {STOP_YEAR} года, файлов не найдено :(")
+    except ConnectionError:
+        update.message.reply_text(f"{url} недоступен, ошибка {r.status_code}.")
+    except IOError:
+        update.message.reply_text('У меня нет твоего login.txt, сорян :(')
+
+
+@log_errors
+def covid_world_handler(update: Update, context: CallbackContext, filename):
+    """Получить данные по зараженным в  мире"""
+    with open(filename, 'r') as file:
+        reader = csv.DictReader(file)
+        infected = 0
+        dead = 0
+        for row in reader:
+            infected += (int(row['Confirmed']))
+            dead += (int(row['Deaths']))
+    update.callback_query.message.reply_text(f'В сумме в мире было подтверждено'
+                                             f' {infected} зараженных. Проверь сам:')
+    bot.send_document(chat_id=update.effective_chat.id, document=open(filename, 'rb'))
+    update.callback_query.message.reply_text(f'Да не переживай ты так, из них умерло всего {dead} человек!')
+
+
+def get_china_data(database_in, database_out):
+    notes = []
+    with open(database_in, 'r') as file:
+        reader = csv.DictReader(file)
+        for row in reader:
+            if row['Country/Region'].find('China') != -1:
+                notes.append(row)
+
+    with open(database_out, 'w', newline='') as csvfile:
+        header = ['Province', 'Last Update', 'Current Cases']
+        writer = csv.DictWriter(csvfile, fieldnames=header)
+        writer.writeheader()
+        for row in notes:
+            writer.writerow({
+                'Province': row["Province/State"],
+                'Last Update': row['Last Update'],
+                'Current Cases': int(row['Confirmed']) - int(row['Recovered']) - int(row['Deaths'])
+            })
+
+
+@log_errors
+def covid_china_handler(update: Update, context: CallbackContext, filename):
+    """Получить данные по зараженным в  Китае"""
+    # актуальная база и дата
+    date_actual = filename_to_date(filename)
+    get_china_data(filename, 'china_data.csv')
+
+    # прошлая база и дата
+    filename_previous = search_back(date_actual, STOP_YEAR, COVID_URL)
+    date_previous = filename_to_date(filename_previous)
+    get_china_data(filename_previous, 'china_data_prev.csv')
+
+    # приятный глазу вид date_actual и date_previous для ответов бота
+    before = date_to_string(date_previous, human=True, split='/')
+    after = date_to_string(date_actual, human=True, split='/')
+
+    update.callback_query.message.reply_text(f'Ну-ка, что там у китайцев?'
+                                             f' Последний отчет - за {after}:')
+    bot.send_document(chat_id=update.effective_chat.id, document=open('china_data.csv', 'rb'))
+
+    # читаем свежую статистику по провинциям
+    notes = []
+    with open('china_data.csv', 'r') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            notes.append(row)
+
+    # записываем зараженные на данный момент провинции, порядок как в notes
+    infected_provinces = [i['Province'] for i in notes]
+
+    # читаем статистику по провинциям из прошлого файла
+    with open('china_data_prev.csv', 'r') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            # для каждой строчки проверяем, не заражена ли сейчас провинция
+            # итерируемся именно по её номеру в списке notes
+            for number in range(len(infected_provinces)):
+                if row['Province'] == infected_provinces[number]:
+                    # если заражена - по номеру в списке получаем число больных
+                    # и находим, на сколько оно изменилось с прошлого файла
+                    notes[number]['Current Cases'] = int(notes[number]['Current Cases'])\
+                                                     - int(row['Current Cases'])
+                    break
+
+    notes.sort(key=lambda d: int(d['Current Cases']), reverse=True)
+
+    BOOST_INFECTED_TOP = 5
+    message = ''
+    for data, counter in zip(notes, range(BOOST_INFECTED_TOP)):
+        message += f"{data['Province']} - {data['Current Cases']} новых заражённых.\n"
+
+    update.callback_query.message.reply_text(f'Топ-5 провинций по новым зараженным'
+                                             f' за период с {before} по {after}:')
+    update.callback_query.message.reply_text(message)
+    update.callback_query.message.reply_text(f'Всего заражено провинций: {len(notes)} . Жуть какая.')
+
+
+# </LESSON 5. API Telegram и CSV>
+# ----------------------------------------------------------
 # <ДОПОЛНИТЕЛЬНЫЕ ФУНКЦИИ, КЛАВИАТУРЫ>
 
 
@@ -306,8 +501,9 @@ def features(update: Update, context: CallbackContext):
                                      callback_data="6-doc-change_history_size")
     feature_7 = InlineKeyboardButton('/ping_intel', callback_data="7-doc-ping_intel")
     feature_8 = InlineKeyboardButton('/git_pic', callback_data="8-doc-git_pic")
-    feature_9 = InlineKeyboardButton('/сat_jokes_best', callback_data="9-doc-cat_facts_best")
-    feature_10 = InlineKeyboardButton('/сat_jokes_random', callback_data="10-doc-cat_facts_random")
+    feature_9 = InlineKeyboardButton('/сat_facts_best', callback_data="9-doc-cat_facts_best")
+    feature_10 = InlineKeyboardButton('/сat_facts_random', callback_data="10-doc-cat_facts_random")
+    feature_11 = InlineKeyboardButton('/corono_stats', callback_data="11-doc-corono_stats")
 
     # настраиваем клавиатуру
     keyboard = [[feature_0, feature_1, feature_2],
@@ -315,7 +511,8 @@ def features(update: Update, context: CallbackContext):
                 [feature_4, feature_5],
                 [feature_6],
                 [feature_7, feature_8],
-                [feature_9, feature_10]]
+                [feature_9, feature_10],
+                [feature_11]]
 
     keyboard_markup = InlineKeyboardMarkup(keyboard)
     update.message.reply_text('Про какую из функций ты хочешь узнать?',
@@ -366,16 +563,21 @@ def change_history_size_handler(update: Update, context: CallbackContext, respon
 def callback_worker(update: Update, context: CallbackContext):
     """Обработка запросов, полученных с клавиатуры"""
     try:
-        response = update.callback_query.data.split('-')
+        response = update.callback_query.data.split('-', 3)
         # формат строки callback_query.data для моих клавиатур:
-        # <номер кнопки>-<id>-<данные для работы функции>
-
+        # <номер кнопки>-<id>-<данные для работы функции>-<название файла, если есть>
         if response[1] == "doc":
             features_handler(update, context, response)
         elif response[1] == "history":
             history_handler(update, context)
         elif response[1] == "ch_hist_size":
             change_history_size_handler(update, context, response)
+        elif response[1] == "covid":
+            filename = response[3]
+            if response[2] == 'world':
+                covid_world_handler(update, context, filename)
+            elif response[2] == 'china':
+                covid_china_handler(update, context, filename)
 
     except Exception as err_code:
         update.callback_query.message.reply_text("Упс! Ошибка при обработке нажатия кнопок!")
@@ -434,6 +636,8 @@ def main():
     updater.dispatcher.add_handler(CommandHandler('git_pic', git_pic))
     updater.dispatcher.add_handler(CommandHandler('cat_facts_best', cat_facts_best))
     updater.dispatcher.add_handler(CommandHandler('cat_facts_random', cat_facts_random))
+    updater.dispatcher.add_handler(CommandHandler('corono_stats', corono_stats))
+
     updater.dispatcher.add_handler(CallbackQueryHandler(callback_worker))
     # </FEATURES FROM FANTASTIC SIX>
 
