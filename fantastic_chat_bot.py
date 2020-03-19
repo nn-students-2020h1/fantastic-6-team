@@ -323,6 +323,8 @@ def filename_to_date(filename):
 
 
 def search_back(date, stop_year, from_url):
+    """Ищем на сайте <from_url> файлы с данными, начиная с даты,
+    предшествующей <date>, пока не найдем или не достигнем <stop_year>"""
     date = date.copy()
     while True:
         date['day'] -= 1
@@ -345,9 +347,8 @@ def search_back(date, stop_year, from_url):
 
 @log_actions
 @log_errors
-def corono_stats(update: Update, context: CallbackContext, reply=True):
+def corono_stats(update: Update, context: CallbackContext):
     """Получить с github свежие данные по коронавирусу."""
-    filename = None
     try:
         # проверяем сегодняшний день
         date = datetime.datetime.now()
@@ -363,16 +364,14 @@ def corono_stats(update: Update, context: CallbackContext, reply=True):
         else:
             filename = search_back(date, STOP_YEAR, COVID_URL)
 
-        if reply:
-            # можно вызывать функцию с диалогом пользователя, можно без
-            button_0 = InlineKeyboardButton('Мир', callback_data=f"0-covid-world-{filename}")
-            button_1 = InlineKeyboardButton('Китай', callback_data=f"1-covid-china-{filename}")
+        button_0 = InlineKeyboardButton('Мир', callback_data=f"0-covid-world-{filename}")
+        button_1 = InlineKeyboardButton('Китай', callback_data=f"1-covid-china-{filename}")
 
-            keyboard = [[button_0],
+        keyboard = [[button_0],
                         [button_1]]
 
-            keyboard_markup = InlineKeyboardMarkup(keyboard)
-            update.message.reply_text('Где смотрим ситуацию?', reply_markup=keyboard_markup)
+        keyboard_markup = InlineKeyboardMarkup(keyboard)
+        update.message.reply_text('Где смотрим ситуацию?', reply_markup=keyboard_markup)
 
     except FileNotFoundError:
         update.message.reply_text(f"Я проверил данные до {STOP_YEAR} года, файлов не найдено :(")
@@ -399,6 +398,7 @@ def covid_world_handler(update: Update, context: CallbackContext, filename):
 
 
 def get_china_data(database_in, database_out):
+    """Получить из <database_in> таблицу co значениями из <header> и записать в <database_out>"""
     notes = []
     with open(database_in, 'r') as file:
         reader = csv.DictReader(file)
@@ -420,7 +420,7 @@ def get_china_data(database_in, database_out):
 
 @log_errors
 def covid_china_handler(update: Update, context: CallbackContext, filename):
-    """Получить данные по зараженным в  Китае"""
+    """Получить данные по зараженным в Китае"""
     # актуальная база и дата
     date_actual = filename_to_date(filename)
     get_china_data(filename, 'china_data.csv')
