@@ -11,11 +11,14 @@
 *.jpeg
 *.html
 *.txt
+*.csv
 
 # ---- НЕ ИГНОРИРУЕМ ----
 !*.py
 !*requirements.txt
 !*.gitignore
 
+# --- НО ВСЕ ЖЕ ИГНОРИРУЕМ ---
+setup.py
 
 
