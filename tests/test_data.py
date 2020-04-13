@@ -169,6 +169,7 @@ class TestStringMethods(unittest.TestCase):
         self.assertEqual(self.data.bool, True)
         self.assertIsInstance(self.data.bool, bool)
         self.assertIn('.', 'Hello, welcome to my world.')
+        self.assertNotIn('!', 'Hello, welcome to my world.')
         self.assertIs(type(self.data.bool), bool)
         self.assertIsNot(type(self.data.bool), int)
 
