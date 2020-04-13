@@ -1,6 +1,7 @@
 import unittest
 from data import Data
 
+
 class TestStringMethods(unittest.TestCase):
     def setUp(self):
         self.data = Data()
@@ -8,6 +9,7 @@ class TestStringMethods(unittest.TestCase):
     def tearDown(self):
         self.data.string = ''
 
+    # to_lower_case methods tests
     def test_to_lower_case_string(self):
         self.data.to_lower_case('HELLO World!')
         self.assertEqual(self.data.string, 'hello world!')
@@ -51,6 +53,7 @@ class TestStringMethods(unittest.TestCase):
         with self.assertRaises(TypeError):
             self.data.to_lower_case({'hello': 'hi'})
 
+    # to_upper_case methods tests
     def test_to_upper_case_string(self):
         self.data.to_upper_case('HELLO World!')
         self.assertEqual(self.data.string, 'HELLO WORLD!')
@@ -94,16 +97,18 @@ class TestStringMethods(unittest.TestCase):
         with self.assertRaises(TypeError):
             self.data.to_upper_case({'hello': 'hi'})
 
+    # count_number_of_object_in_string methods tests
+    # ends_with method tests
 
 if __name__ == '__main__':
     unittest.main()
 
 # Add tests:
-#.assertEqual()++ / .assertNotEqual()++
-#.assertTrue()++ / .assertFalse++
-#.assertIs() / .assertIsNot()
-#.assertIn() / .assertNotIn()
-#.assertIsNone() / .assertIsNotNone()
-#.assertIsInstance() / .assertNotInstance()
-#.assertWarns()
-#.assertRaises()++
+# .assertEqual()++ / .assertNotEqual()++
+# .assertTrue()++ / .assertFalse++
+# .assertIs() / .assertIsNot()
+# .assertIn() / .assertNotIn()
+# .assertIsNone() / .assertIsNotNone()
+# .assertIsInstance() / .assertNotInstance()
+# .assertWarns()
+# .assertRaises()++
