@@ -152,6 +152,9 @@ class TestStringMethods(unittest.TestCase):
         with self.assertRaises(TypeError, msg='Data type of input data should be string'):
             self.data.count_number_of_object({'hello': 'hi'})
 
+    def test_count_number_of_object_warnings(self):
+        with self.assertWarns(UserWarning):
+            self.data.count_number_of_object('Hello, welcome to my world, a great world.', 'world')
 if __name__ == '__main__':
     unittest.main()
 
