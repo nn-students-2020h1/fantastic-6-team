@@ -107,7 +107,7 @@ class TestStringMethods(unittest.TestCase):
         with self.assertRaises(TypeError, msg='Data type of input data should be string'):
             self.data.to_upper_case({'hello': 'hi'})
 
-    # count_number_of_object_in_string methods tests
+    # find_index_of_object methods tests
     def test_find_index_of_object_string(self):
         self.data.find_index_of_object('Hello, welcome to my world.', 'world')
         self.assertEqual(self.data.number, 21)
