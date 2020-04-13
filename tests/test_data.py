@@ -16,6 +16,15 @@ class TestData(unittest.TestCase):
         with self.assertRaises(TypeError):
             self.data.to_lower_case(5)
 
+    def test_to_upper_case_string(self):
+        self.data.to_upper_case('hello World!')
+        self.assertEqual(self.data.string, 'HELLO WORLD!')
+
+    def test_to_lower_case_string(self):
+        with self.assertRaises(TypeError):
+            self.data.to_upper_case(5)
+
+
 if __name__ == '__main__':
     unittest.main()
 
