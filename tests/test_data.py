@@ -9,6 +9,7 @@ class TestStringMethods(unittest.TestCase):
     def tearDown(self):
         self.data.string = ''
         self.data.number = None
+        self.data.bool = None
 
     # to_lower_case methods tests
     def test_to_lower_case_string(self):
@@ -155,6 +156,50 @@ class TestStringMethods(unittest.TestCase):
     def test_find_index_of_object_warnings(self):
         with self.assertWarns(UserWarning):
             self.data.find_index_of_object('Hello, welcome to my world, a great world.', 'world')
+
+    # ends_with methods tests
+    def test_ends_with_string(self):
+        self.data.ends_with('Hello, welcome to my world.', '.')
+        self.assertEqual(self.data.bool, True)
+        self.assertIsInstance(self.data.number, bool)
+        self.assertIn('.', 'Hello, welcome to my world.')
+
+    def test_ends_with_int(self):
+        with self.assertRaises(TypeError, msg='Data type of input data should be string'):
+            self.data.ends_with(5)
+
+    def test_ends_with_float(self):
+        with self.assertRaises(TypeError, msg='Data type of input data should be string'):
+            self.data.ends_with(5.9)
+
+    def test_ends_with_bool(self):
+        with self.assertRaises(TypeError, msg='Data type of input data should be string'):
+            self.data.ends_with(True)
+
+    def test_ends_with_list(self):
+        with self.assertRaises(TypeError, msg='Data type of input data should be string'):
+            self.data.ends_with([2, 'something'])
+
+    def test_ends_with_tupple(self):
+        with self.assertRaises(TypeError, msg='Data type of input data should be string'):
+            self.data.ends_with([2, 'something'])
+
+    def test_ends_with_set(self):
+        with self.assertRaises(TypeError, msg='Data type of input data should be string'):
+            self.data.ends_with({4, 5})
+
+    def test_ends_with_list(self):
+        with self.assertRaises(TypeError, msg='Data type of input data should be string'):
+            self.data.ends_with([])
+
+    def test_ends_with_none(self):
+        with self.assertRaises(TypeError, msg='Data type of input data should be string'):
+            self.data.ends_with(None)
+
+    def test_ends_with_dict(self):
+        with self.assertRaises(TypeError, msg='Data type of input data should be string'):
+            self.data.ends_with({'hello': 'hi'})
+
 if __name__ == '__main__':
     unittest.main()
 
