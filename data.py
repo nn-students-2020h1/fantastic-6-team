@@ -16,7 +16,7 @@ class Data(object):
         else:
             raise TypeError('Doesn\'t support this data type.')
 
-    def count_number_of_object(self, s, target):
+    def find_index_of_object(self, s, target):
         if isinstance(s, str):
             if s.count(target) <= 1:
                 self.number = s.find(target)

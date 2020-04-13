@@ -105,8 +105,8 @@ class TestStringMethods(unittest.TestCase):
             self.data.to_upper_case({'hello': 'hi'})
 
     # count_number_of_object_in_string methods tests
-    def test_count_number_of_object_string(self):
-        self.data.count_number_of_object('Hello, welcome to my world.', 'world')
+    def test_find_index_of_object_string(self):
+        self.data.find_index_of_object('Hello, welcome to my world.', 'world')
         self.assertEqual(self.data.number, 21)
         self.assertNotEqual(self.data.number, -1)
         self.assertTrue(self.data.number == 21)
@@ -116,45 +116,45 @@ class TestStringMethods(unittest.TestCase):
         self.assertIsNotNone(self.data.number)
 
 
-    def test_count_number_of_object_int(self):
+    def test_find_index_of_object_int(self):
         with self.assertRaises(TypeError, msg='Data type of input data should be string'):
-            self.data.count_number_of_object(5)
+            self.data.find_index_of_object(5)
 
-    def test_count_number_of_object_float(self):
+    def test_find_index_of_object_float(self):
         with self.assertRaises(TypeError, msg='Data type of input data should be string'):
-            self.data.count_number_of_object(5.9)
+            self.data.find_index_of_object(5.9)
 
-    def test_count_number_of_object_bool(self):
+    def test_find_index_of_object_bool(self):
         with self.assertRaises(TypeError, msg='Data type of input data should be string'):
-            self.data.count_number_of_object(True)
+            self.data.find_index_of_object(True)
 
-    def test_count_number_of_object_list(self):
+    def test_find_index_of_object_list(self):
         with self.assertRaises(TypeError, msg='Data type of input data should be string'):
-            self.data.count_number_of_object([2, 'something'])
+            self.data.find_index_of_object([2, 'something'])
 
-    def test_count_number_of_object_tupple(self):
+    def test_find_index_of_object_tupple(self):
         with self.assertRaises(TypeError, msg='Data type of input data should be string'):
-            self.data.count_number_of_object([2, 'something'])
+            self.data.find_index_of_object([2, 'something'])
 
-    def test_count_number_of_object_set(self):
+    def test_find_index_of_object_set(self):
         with self.assertRaises(TypeError, msg='Data type of input data should be string'):
-            self.data.count_number_of_object({4, 5})
+            self.data.find_index_of_object({4, 5})
 
-    def test_count_number_of_object_list(self):
+    def test_find_index_of_object_list(self):
         with self.assertRaises(TypeError, msg='Data type of input data should be string'):
-            self.data.count_number_of_object([])
+            self.data.find_index_of_object([])
 
-    def test_count_number_of_object_none(self):
+    def test_find_index_of_object_none(self):
         with self.assertRaises(TypeError, msg='Data type of input data should be string'):
-            self.data.count_number_of_object(None)
+            self.data.find_index_of_object(None)
 
-    def test_count_number_of_object_dict(self):
+    def test_find_index_of_object_dict(self):
         with self.assertRaises(TypeError, msg='Data type of input data should be string'):
-            self.data.count_number_of_object({'hello': 'hi'})
+            self.data.find_index_of_object({'hello': 'hi'})
 
-    def test_count_number_of_object_warnings(self):
+    def test_find_index_of_object_warnings(self):
         with self.assertWarns(UserWarning):
-            self.data.count_number_of_object('Hello, welcome to my world, a great world.', 'world')
+            self.data.find_index_of_object('Hello, welcome to my world, a great world.', 'world')
 if __name__ == '__main__':
     unittest.main()
 
@@ -163,7 +163,7 @@ if __name__ == '__main__':
 # .assertTrue()++ / .assertFalse++
 # .assertIs() / .assertIsNot()
 # .assertIn() / .assertNotIn()
-# .assertIsNone() / .assertIsNotNone()
+# .assertIsNone() / .assertIsNotNone() ++
 # .assertIsInstance()++ / .assertNotInstance()++
 # .assertWarns()
 # .assertRaises()++
