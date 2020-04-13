@@ -24,3 +24,6 @@ class Data(object):
                 warn(f'It\'s better to use count_number_of_object function, because {target} exists in {s} more than one time.', UserWarning)
         else:
             raise TypeError('Doesn\'t support this data type.')
+
+    def ends_with(self, s, target):
+        pass
