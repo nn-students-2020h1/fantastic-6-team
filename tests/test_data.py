@@ -8,6 +8,7 @@ class TestStringMethods(unittest.TestCase):
 
     def tearDown(self):
         self.data.string = ''
+        self.data.number = None
 
     # to_lower_case methods tests
     def test_to_lower_case_string(self):
@@ -99,11 +100,11 @@ class TestStringMethods(unittest.TestCase):
 
     # count_number_of_object_in_string methods tests
     def test_count_number_of_object_string(self):
-        #self.data.to_upper_case('HELLO World!')
-        #self.assertEqual(self.data.string, 'HELLO WORLD!')
-        #self.assertNotEqual(self.data.string, 'HELLO World!')
-        #self.assertTrue(self.data.string.islower())
-        #self.assertFalse(self.data.string.isupper())
+        self.data.count_number_of_object('Hello, welcome to my world.', 'world')
+        self.assertEqual(self.data.number, 1)
+        self.assertNotEqual(self.data.number, -1)
+        self.assertTrue(self.data.number == 1)
+        self.assertFalse(self.data.string != 1)
 
     def test_count_number_of_object_int(self):
         with self.assertRaises(TypeError):
@@ -140,7 +141,6 @@ class TestStringMethods(unittest.TestCase):
     def test_count_number_of_object_dict(self):
         with self.assertRaises(TypeError):
             self.data.count_number_of_object({'hello': 'hi'})
-    # ends_with method tests
 
 if __name__ == '__main__':
     unittest.main()

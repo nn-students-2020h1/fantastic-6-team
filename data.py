@@ -1,6 +1,7 @@
 class Data(object):
     def __init__(self):
         self.string = ''
+        self.number = None
 
     def to_upper_case(self, s):
         pass
@@ -9,7 +10,4 @@ class Data(object):
         pass
 
     def count_number_of_object(self, s, target):
-        pass
-
-    def ends_with(self, s, target):
         pass
