@@ -17,6 +17,8 @@ class TestStringMethods(unittest.TestCase):
         self.assertNotEqual(self.data.string, 'HELLO World!')
         self.assertTrue(self.data.string.islower())
         self.assertFalse(self.data.string.isupper())
+        self.assertIsInstance(self.data.string, str)
+        self.assertNotIsInstance(self.data.string, int)
 
     def test_to_lower_case_int(self):
         with self.assertRaises(TypeError):
@@ -61,6 +63,8 @@ class TestStringMethods(unittest.TestCase):
         self.assertNotEqual(self.data.string, 'HELLO World!')
         self.assertTrue(self.data.string.isupper())
         self.assertFalse(self.data.string.islower())
+        self.assertIsInstance(self.data.string, str)
+        self.assertNotIsInstance(self.data.string, int)
 
     def test_to_upper_case_int(self):
         with self.assertRaises(TypeError):
@@ -105,6 +109,8 @@ class TestStringMethods(unittest.TestCase):
         self.assertNotEqual(self.data.number, -1)
         self.assertTrue(self.data.number == 21)
         self.assertFalse(self.data.number != 21)
+        self.assertIsInstance(self.data.number, int)
+        self.assertNotIsInstance(self.data.number, str)
 
 
     def test_count_number_of_object_int(self):
@@ -152,6 +158,6 @@ if __name__ == '__main__':
 # .assertIs() / .assertIsNot()
 # .assertIn() / .assertNotIn()
 # .assertIsNone() / .assertIsNotNone()
-# .assertIsInstance() / .assertNotInstance()
+# .assertIsInstance()++ / .assertNotInstance()++
 # .assertWarns()
 # .assertRaises()++
