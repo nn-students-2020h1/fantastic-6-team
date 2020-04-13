@@ -98,6 +98,48 @@ class TestStringMethods(unittest.TestCase):
             self.data.to_upper_case({'hello': 'hi'})
 
     # count_number_of_object_in_string methods tests
+    def test_count_number_of_object_string(self):
+        self.data.to_upper_case('HELLO World!')
+        self.assertEqual(self.data.string, 'HELLO WORLD!')
+        self.assertNotEqual(self.data.string, 'HELLO World!')
+        self.assertTrue(self.data.string.islower())
+        self.assertFalse(self.data.string.isupper())
+
+    def test_count_number_of_object_int(self):
+        with self.assertRaises(TypeError):
+            self.data.to_upper_case(5)
+
+    def test_count_number_of_object_float(self):
+        with self.assertRaises(TypeError):
+            self.data.to_upper_case(5.9)
+
+    def test_count_number_of_object_bool(self):
+        with self.assertRaises(TypeError):
+            self.data.to_upper_case(True)
+
+    def test_count_number_of_object_list(self):
+        with self.assertRaises(TypeError):
+            self.data.to_upper_case([2, 'something'])
+
+    def test_count_number_of_object_tupple(self):
+        with self.assertRaises(TypeError):
+            self.data.to_upper_case([2, 'something'])
+
+    def test_count_number_of_object_set(self):
+        with self.assertRaises(TypeError):
+            self.data.to_upper_case({4, 5})
+
+    def test_count_number_of_object_list(self):
+        with self.assertRaises(TypeError):
+            self.data.to_upper_case([])
+
+    def test_count_number_of_object_none(self):
+        with self.assertRaises(TypeError):
+            self.data.to_upper_case(None)
+
+    def test_count_number_of_object_dict(self):
+        with self.assertRaises(TypeError):
+            self.data.to_upper_case({'hello': 'hi'})
     # ends_with method tests
 
 if __name__ == '__main__':

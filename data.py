@@ -8,7 +8,7 @@ class Data(object):
     def to_lower_case(self, s):
         pass
 
-    def count_number_of_object_in_string(self, s, target):
+    def count_number_of_object(self, s, target):
         pass
 
     def ends_with(self, s, target):
