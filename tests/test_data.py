@@ -206,13 +206,3 @@ class TestStringMethods(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-
-# Add tests:
-# .assertEqual()++ / .assertNotEqual()++
-# .assertTrue()++ / .assertFalse++
-# .assertIs()++ / .assertIsNot()
-# .assertIn()++ / .assertNotIn()
-# .assertIsNone() / .assertIsNotNone() ++
-# .assertIsInstance()++ / .assertNotInstance()++
-# .assertWarns()++
-# .assertRaises()++
