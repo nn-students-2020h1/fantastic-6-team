@@ -17,7 +17,7 @@
 !*.py
 !*requirements.txt
 !*.gitignore
-!/unit-tests/
+!/tests/
 # --- НО ВСЕ ЖЕ ИГНОРИРУЕМ ---
 setup.py
 

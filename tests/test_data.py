@@ -2,23 +2,29 @@ import unittest
 from data import Data
 
 class TestData(unittest.TestCase):
-    def test_something(self):
+    def setUp(self):
         self.data = Data()
 
     def tearDown(self):
         self.data.string = ''
 
-    def test_to
+    def test_to_lower_case_string(self):
+        self.data.to_lower_case('HELLO World!')
+        self.assertEqual(self.data.string, 'hello world!')
+
+    def test_to_lower_case_string(self):
+        with self.assertRaises(TypeError):
+            self.data.to_lower_case(5)
 
 if __name__ == '__main__':
     unittest.main()
 
 # Add tests:
-#.assertEqual() / .assertNotEqual()
+#.assertEqual()++ / .assertNotEqual()
 #.assertTrue() / .assertFalse
 #.assertIs() / .assertIsNot()
 #.assertIn() / .assertNotIn()
 #.assertIsNone() / .assertIsNotNone()
 #.assertIsInstance() / .assertNotInstance()
 #.assertWarns()
-#.assertRaises()
+#.assertRaises()++
