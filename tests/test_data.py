@@ -19,6 +19,7 @@ class TestStringMethods(unittest.TestCase):
         self.assertFalse(self.data.string.isupper())
         self.assertIsInstance(self.data.string, str)
         self.assertNotIsInstance(self.data.string, int)
+        self.assertIsNotNone(self.data.string)
 
     def test_to_lower_case_int(self):
         with self.assertRaises(TypeError):
@@ -65,6 +66,7 @@ class TestStringMethods(unittest.TestCase):
         self.assertFalse(self.data.string.islower())
         self.assertIsInstance(self.data.string, str)
         self.assertNotIsInstance(self.data.string, int)
+        self.assertIsNotNone(self.data.string)
 
     def test_to_upper_case_int(self):
         with self.assertRaises(TypeError):
@@ -111,6 +113,7 @@ class TestStringMethods(unittest.TestCase):
         self.assertFalse(self.data.number != 21)
         self.assertIsInstance(self.data.number, int)
         self.assertNotIsInstance(self.data.number, str)
+        self.assertIsNotNone(self.data.number)
 
 
     def test_count_number_of_object_int(self):
