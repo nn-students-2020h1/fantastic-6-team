@@ -161,7 +161,7 @@ class TestStringMethods(unittest.TestCase):
     def test_ends_with_string(self):
         self.data.ends_with('Hello, welcome to my world.', '.')
         self.assertEqual(self.data.bool, True)
-        self.assertIsInstance(self.data.number, bool)
+        self.assertIsInstance(self.data.bool, bool)
         self.assertIn('.', 'Hello, welcome to my world.')
 
     def test_ends_with_int(self):
