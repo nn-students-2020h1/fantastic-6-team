@@ -101,10 +101,11 @@ class TestStringMethods(unittest.TestCase):
     # count_number_of_object_in_string methods tests
     def test_count_number_of_object_string(self):
         self.data.count_number_of_object('Hello, welcome to my world.', 'world')
-        self.assertEqual(self.data.number, 1)
+        self.assertEqual(self.data.number, 21)
         self.assertNotEqual(self.data.number, -1)
-        self.assertTrue(self.data.number == 1)
-        self.assertFalse(self.data.string != 1)
+        self.assertTrue(self.data.number == 21)
+        self.assertFalse(self.data.number != 21)
+
 
     def test_count_number_of_object_int(self):
         with self.assertRaises(TypeError):
