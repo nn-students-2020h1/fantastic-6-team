@@ -2,24 +2,24 @@ class Data(object):
     def __init__(self):
         self.string = ''
 
-    def add(self, s):
+ #   def add(self, s):
+ #       pass
+
+    def to_upper_case(self, s):
         pass
 
-    def toUpperCase(self, s):
+    def to_lower_case(self, s):
         pass
 
-    def toLowerCase(self, s):
+    def capitalize_first_character(self, s):
         pass
 
-    def capitalizeFirstCharacter(self, s):
+    def capitalize_first_character_of_each_word(self, s):
         pass
 
-    def capitalizeFirstCharacterOfEachWord(self, s):
-        pass
+# def countObjectInString(self, s, target):
+#       pass
 
-    def countObjectInString(self, s, target):
-        pass
-
-    def endswith(self, s, target):
-        pass
+#   def ends_with(self, s, target):
+#        pass
 

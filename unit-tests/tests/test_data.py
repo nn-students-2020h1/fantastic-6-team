@@ -4,9 +4,11 @@ from data import Data
 class TestData(unittest.TestCase):
     def test_something(self):
         self.data = Data()
-    def tearDown(self):
-        self.data.data_list = []
 
+    def tearDown(self):
+        self.data.string = ''
+
+    def test_to
 
 if __name__ == '__main__':
     unittest.main()
