@@ -21,6 +21,7 @@ class TestStringMethods(unittest.TestCase):
         self.assertIsInstance(self.data.string, str)
         self.assertNotIsInstance(self.data.string, int)
         self.assertIsNotNone(self.data.string)
+        self.assertIs(type(self.data.string), str)
 
     def test_to_lower_case_int(self):
         with self.assertRaises(TypeError, msg='Data type of input data should be string'):
@@ -68,6 +69,7 @@ class TestStringMethods(unittest.TestCase):
         self.assertIsInstance(self.data.string, str)
         self.assertNotIsInstance(self.data.string, int)
         self.assertIsNotNone(self.data.string)
+        self.assertIs(type(self.data.string), str)
 
     def test_to_upper_case_int(self):
         with self.assertRaises(TypeError, msg='Data type of input data should be string'):
@@ -115,6 +117,7 @@ class TestStringMethods(unittest.TestCase):
         self.assertIsInstance(self.data.number, int)
         self.assertNotIsInstance(self.data.number, str)
         self.assertIsNotNone(self.data.number)
+        self.assertIs(type(self.data.number), int)
 
 
     def test_find_index_of_object_int(self):
@@ -163,6 +166,7 @@ class TestStringMethods(unittest.TestCase):
         self.assertEqual(self.data.bool, True)
         self.assertIsInstance(self.data.bool, bool)
         self.assertIn('.', 'Hello, welcome to my world.')
+        self.assertIs(type(self.data.bool), bool)
 
     def test_ends_with_int(self):
         with self.assertRaises(TypeError, msg='Data type of input data should be string'):
@@ -206,9 +210,9 @@ if __name__ == '__main__':
 # Add tests:
 # .assertEqual()++ / .assertNotEqual()++
 # .assertTrue()++ / .assertFalse++
-# .assertIs() / .assertIsNot()
-# .assertIn() / .assertNotIn()
+# .assertIs()++ / .assertIsNot()
+# .assertIn()++ / .assertNotIn()
 # .assertIsNone() / .assertIsNotNone() ++
 # .assertIsInstance()++ / .assertNotInstance()++
-# .assertWarns()
+# .assertWarns()++
 # .assertRaises()++
