@@ -59,8 +59,8 @@ class TestStringMethods(unittest.TestCase):
         self.data.to_upper_case('HELLO World!')
         self.assertEqual(self.data.string, 'HELLO WORLD!')
         self.assertNotEqual(self.data.string, 'HELLO World!')
-        self.assertTrue(self.data.string.islower())
-        self.assertFalse(self.data.string.isupper())
+        self.assertTrue(self.data.string.isupper())
+        self.assertFalse(self.data.string.islower())
 
     def test_to_upper_case_int(self):
         with self.assertRaises(TypeError):
