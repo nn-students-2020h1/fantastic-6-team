@@ -1,9 +1,9 @@
 from warnings import warn
 class Data(object):
     def __init__(self):
-        self.string = ''
-        self.number = None
-        self.bool = None
+        self.string = ''  # str
+        self.number = None  # int
+        self.bool = None  # bool
 
     def to_upper_case(self, s):
         if isinstance(s, str):
