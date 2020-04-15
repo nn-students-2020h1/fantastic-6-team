@@ -125,35 +125,35 @@ class TestStringMethods(unittest.TestCase):
 
     def test_find_index_of_object_int(self):
         with self.assertRaises(TypeError, msg='Data type of input data should be string'):
-            self.data.find_index_of_object(5)
+            self.data.find_index_of_object(5, 5)
 
     def test_find_index_of_object_float(self):
         with self.assertRaises(TypeError, msg='Data type of input data should be string'):
-            self.data.find_index_of_object(5.9)
+            self.data.find_index_of_object(5.9, 5.9)
 
     def test_find_index_of_object_bool(self):
         with self.assertRaises(TypeError, msg='Data type of input data should be string'):
-            self.data.find_index_of_object(True)
+            self.data.find_index_of_object(True, True)
 
     def test_find_index_of_object_list(self):
         with self.assertRaises(TypeError, msg='Data type of input data should be string'):
-            self.data.find_index_of_object([2, 'something'])
+            self.data.find_index_of_object([2, 'something'], 'something')
 
     def test_find_index_of_object_tupple(self):
         with self.assertRaises(TypeError, msg='Data type of input data should be string'):
-            self.data.find_index_of_object([2, 'something'])
+            self.data.find_index_of_object([2, 'something'], 'something')
 
     def test_find_index_of_object_set(self):
         with self.assertRaises(TypeError, msg='Data type of input data should be string'):
-            self.data.find_index_of_object({4, 5})
+            self.data.find_index_of_object({4, 5}, 4)
 
     def test_find_index_of_object_none(self):
         with self.assertRaises(TypeError, msg='Data type of input data should be string'):
-            self.data.find_index_of_object(None)
+            self.data.find_index_of_object(None, None)
 
     def test_find_index_of_object_dict(self):
         with self.assertRaises(TypeError, msg='Data type of input data should be string'):
-            self.data.find_index_of_object({'hello': 'hi'})
+            self.data.find_index_of_object({'hello': 'hi'}, 'hello')
 
     def test_find_index_of_object_warnings(self):
         with self.assertWarns(UserWarning):
@@ -171,35 +171,35 @@ class TestStringMethods(unittest.TestCase):
 
     def test_ends_with_int(self):
         with self.assertRaises(TypeError, msg='Data type of input data should be string'):
-            self.data.ends_with(5)
+            self.data.ends_with(5, 5)
 
     def test_ends_with_float(self):
         with self.assertRaises(TypeError, msg='Data type of input data should be string'):
-            self.data.ends_with(5.9)
+            self.data.ends_with(5.9, 9)
 
     def test_ends_with_bool(self):
         with self.assertRaises(TypeError, msg='Data type of input data should be string'):
-            self.data.ends_with(True)
+            self.data.ends_with(True, 'e')
 
     def test_ends_with_list(self):
         with self.assertRaises(TypeError, msg='Data type of input data should be string'):
-            self.data.ends_with([2, 'something'])
+            self.data.ends_with([2, 'something'], 'something')
 
     def test_ends_with_tupple(self):
         with self.assertRaises(TypeError, msg='Data type of input data should be string'):
-            self.data.ends_with([2, 'something'])
+            self.data.ends_with([2, 'something'], 'something')
 
     def test_ends_with_set(self):
         with self.assertRaises(TypeError, msg='Data type of input data should be string'):
-            self.data.ends_with({4, 5})
+            self.data.ends_with({4, 5}, 5)
 
     def test_ends_with_none(self):
         with self.assertRaises(TypeError, msg='Data type of input data should be string'):
-            self.data.ends_with(None)
+            self.data.ends_with(None, None)
 
     def test_ends_with_dict(self):
         with self.assertRaises(TypeError, msg='Data type of input data should be string'):
-            self.data.ends_with({'hello': 'hi'})
+            self.data.ends_with({'hello': 'hi'}, 'hi')
 
 if __name__ == '__main__':
     unittest.main()
