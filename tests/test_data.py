@@ -12,11 +12,17 @@ class TestStringMethods(unittest.TestCase):
         self.data.bool = None
 
     # to_lower_case methods tests
-    def test_to_lower_case_string(self):
+    def test_to_lower_case_string_is_lowercase(self):
         self.data.to_lower_case('HELLO World!')
         self.assertTrue(self.data.string.islower())
-        self.assertFalse(self.data.string.isupper())
+
+    def test_to_lower_case_result_is_string(self):
+        self.data.to_lower_case('HELLO World!')
         self.assertIs(type(self.data.string), str)
+
+    def test_to_lower_case_result_is_not_uppercase(self):
+        self.data.to_lower_case('HELLO World!')
+        self.assertFalse(self.data.string.isupper())
 
     def test_to_lower_case_int(self):
         with self.assertRaises(TypeError, msg='Data type of input data should be string'):
