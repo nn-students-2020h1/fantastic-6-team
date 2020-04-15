@@ -147,10 +147,6 @@ class TestStringMethods(unittest.TestCase):
         with self.assertRaises(TypeError, msg='Data type of input data should be string'):
             self.data.find_index_of_object({4, 5})
 
-    def test_find_index_of_object_list(self):
-        with self.assertRaises(TypeError, msg='Data type of input data should be string'):
-            self.data.find_index_of_object([])
-
     def test_find_index_of_object_none(self):
         with self.assertRaises(TypeError, msg='Data type of input data should be string'):
             self.data.find_index_of_object(None)
@@ -196,10 +192,6 @@ class TestStringMethods(unittest.TestCase):
     def test_ends_with_set(self):
         with self.assertRaises(TypeError, msg='Data type of input data should be string'):
             self.data.ends_with({4, 5})
-
-    def test_ends_with_list(self):
-        with self.assertRaises(TypeError, msg='Data type of input data should be string'):
-            self.data.ends_with([])
 
     def test_ends_with_none(self):
         with self.assertRaises(TypeError, msg='Data type of input data should be string'):
