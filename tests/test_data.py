@@ -1,3 +1,5 @@
+"""Lesson 8. TDD. Тесты для класса Data"""
+
 import unittest
 from data import Data
 
@@ -40,7 +42,7 @@ class TestStringMethods(unittest.TestCase):
         with self.assertRaises(TypeError, msg='Data type of input data should be string'):
             self.data.to_lower_case([2, 'something'])
 
-    def test_to_lower_case_tupple(self):
+    def test_to_lower_case_tuple(self):
         with self.assertRaises(TypeError, msg='Data type of input data should be string'):
             self.data.to_lower_case([2, 'something'])
 
@@ -85,7 +87,7 @@ class TestStringMethods(unittest.TestCase):
         with self.assertRaises(TypeError, msg='Data type of input data should be string'):
             self.data.to_upper_case([2, 'something'])
 
-    def test_to_upper_case_tupple(self):
+    def test_to_upper_case_tuple(self):
         with self.assertRaises(TypeError, msg='Data type of input data should be string'):
             self.data.to_upper_case([2, 'something'])
 
@@ -122,7 +124,6 @@ class TestStringMethods(unittest.TestCase):
         self.data.find_index_of_object('Hello, welcome to my world.', 'world')
         self.assertIsNot(type(self.data.number), str)
 
-
     def test_find_index_of_object_int(self):
         with self.assertRaises(TypeError, msg='Data type of input data should be string'):
             self.data.find_index_of_object(5, 5)
@@ -139,7 +140,7 @@ class TestStringMethods(unittest.TestCase):
         with self.assertRaises(TypeError, msg='Data type of input data should be string'):
             self.data.find_index_of_object([2, 'something'], 'something')
 
-    def test_find_index_of_object_tupple(self):
+    def test_find_index_of_object_tuple(self):
         with self.assertRaises(TypeError, msg='Data type of input data should be string'):
             self.data.find_index_of_object([2, 'something'], 'something')
 
@@ -188,7 +189,7 @@ class TestStringMethods(unittest.TestCase):
         with self.assertRaises(TypeError, msg='Data type of input data should be string'):
             self.data.ends_with([2, 'something'], 'something')
 
-    def test_ends_with_tupple(self):
+    def test_ends_with_tuple(self):
         with self.assertRaises(TypeError, msg='Data type of input data should be string'):
             self.data.ends_with([2, 'something'], 'something')
 
@@ -203,6 +204,7 @@ class TestStringMethods(unittest.TestCase):
     def test_ends_with_dict(self):
         with self.assertRaises(TypeError, msg='Data type of input data should be string'):
             self.data.ends_with({'hello': 'hi'}, 'hi')
+
 
 if __name__ == '__main__':
     unittest.main()
