@@ -14,15 +14,9 @@ class TestStringMethods(unittest.TestCase):
     # to_lower_case methods tests
     def test_to_lower_case_string(self):
         self.data.to_lower_case('HELLO World!')
-        self.assertEqual(self.data.string, 'hello world!')
-        self.assertNotEqual(self.data.string, 'HELLO World!')
         self.assertTrue(self.data.string.islower())
         self.assertFalse(self.data.string.isupper())
-        self.assertIsInstance(self.data.string, str)
-        self.assertNotIsInstance(self.data.string, int)
-        self.assertIsNotNone(self.data.string)
         self.assertIs(type(self.data.string), str)
-        self.assertIsNot(type(self.data.string), int)
 
     def test_to_lower_case_int(self):
         with self.assertRaises(TypeError, msg='Data type of input data should be string'):
@@ -64,14 +58,8 @@ class TestStringMethods(unittest.TestCase):
     def test_to_upper_case_string(self):
         self.data.to_upper_case('HELLO World!')
         self.assertEqual(self.data.string, 'HELLO WORLD!')
-        self.assertNotEqual(self.data.string, 'HELLO World!')
-        self.assertTrue(self.data.string.isupper())
         self.assertFalse(self.data.string.islower())
-        self.assertIsInstance(self.data.string, str)
-        self.assertNotIsInstance(self.data.string, int)
-        self.assertIsNotNone(self.data.string)
         self.assertIs(type(self.data.string), str)
-        self.assertIsNot(type(self.data.string), int)
 
     def test_to_upper_case_int(self):
         with self.assertRaises(TypeError, msg='Data type of input data should be string'):
@@ -112,14 +100,9 @@ class TestStringMethods(unittest.TestCase):
     # find_index_of_object methods tests
     def test_find_index_of_object_string(self):
         self.data.find_index_of_object('Hello, welcome to my world.', 'world')
-        self.assertEqual(self.data.number, 21)
         self.assertNotEqual(self.data.number, -1)
-        self.assertTrue(self.data.number == 21)
-        self.assertFalse(self.data.number != 21)
-        self.assertIsInstance(self.data.number, int)
         self.assertNotIsInstance(self.data.number, str)
         self.assertIsNotNone(self.data.number)
-        self.assertIs(type(self.data.number), int)
         self.assertIsNot(type(self.data.number), str)
 
 
@@ -162,12 +145,9 @@ class TestStringMethods(unittest.TestCase):
     # ends_with methods tests
     def test_ends_with_string(self):
         self.data.ends_with('Hello, welcome to my world.', '.')
-        self.assertEqual(self.data.bool, True)
         self.assertIsInstance(self.data.bool, bool)
         self.assertIn('.', 'Hello, welcome to my world.')
         self.assertNotIn('!', 'Hello, welcome to my world.')
-        self.assertIs(type(self.data.bool), bool)
-        self.assertIsNot(type(self.data.bool), int)
 
     def test_ends_with_int(self):
         with self.assertRaises(TypeError, msg='Data type of input data should be string'):
