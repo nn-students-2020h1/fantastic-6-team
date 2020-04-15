@@ -109,8 +109,17 @@ class TestStringMethods(unittest.TestCase):
     def test_find_index_of_object_string(self):
         self.data.find_index_of_object('Hello, welcome to my world.', 'world')
         self.assertNotEqual(self.data.number, -1)
+
+    def test_find_index_of_object_string_result_is_not_empty(self):
+        self.data.find_index_of_object('Hello, welcome to my world.', 'world')
         self.assertNotIsInstance(self.data.number, str)
+
+    def test_find_index_of_object_string_result_is_not_none(self):
+        self.data.find_index_of_object('Hello, welcome to my world.', 'world')
         self.assertIsNotNone(self.data.number)
+
+    def test_find_index_of_object_string__result_is_not_string(self):
+        self.data.find_index_of_object('Hello, welcome to my world.', 'world')
         self.assertIsNot(type(self.data.number), str)
 
 
@@ -151,10 +160,16 @@ class TestStringMethods(unittest.TestCase):
             self.data.find_index_of_object('Hello, welcome to my world, a great world.', 'world')
 
     # ends_with methods tests
-    def test_ends_with_string(self):
+    def test_ends_with_string_result_is_bool(self):
         self.data.ends_with('Hello, welcome to my world.', '.')
         self.assertIsInstance(self.data.bool, bool)
+
+    def test_ends_with_string_target_is_in_input(self):
+        self.data.ends_with('Hello, welcome to my world.', '.')
         self.assertIn('.', 'Hello, welcome to my world.')
+
+    def test_ends_with_string_target_is_not_in_input(self):
+        self.data.ends_with('Hello, welcome to my world.', '.')
         self.assertNotIn('!', 'Hello, welcome to my world.')
 
     def test_ends_with_int(self):
