@@ -27,6 +27,8 @@ from random import randint
 
 # <LESSON 5>
 import csv
+from copy import copy
+from datetime import timedelta  # удобные операции со временем
 STOP_YEAR = 2019  # до какого года листать базу если не можем получить файл
 COVID_URL = 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/' \
                'master/csse_covid_19_data/csse_covid_19_daily_reports/'
@@ -138,9 +140,9 @@ def log_actions(func_to_decorate):
 @log_errors
 def history(update: Update, context: CallbackContext):
     """Показать последние <HISTORY_SIZE> сообщений по запросу /history."""
-    button_0 = InlineKeyboardButton('Actions', callback_data="0-history-log_actions.txt")
-    button_1 = InlineKeyboardButton('Errors', callback_data="1-history-log_errors.txt")
-    keyboard = [[button_0], [button_1]]
+    button_actions = InlineKeyboardButton('Actions', callback_data="0-history-log_actions.txt")
+    button_errors = InlineKeyboardButton('Errors', callback_data="1-history-log_errors.txt")
+    keyboard = [[button_actions], [button_errors]]
     keyboard_markup = InlineKeyboardMarkup(keyboard)
     update.message.reply_text('Какой лог смотрим?', reply_markup=keyboard_markup)
 
@@ -292,51 +294,23 @@ def cat_facts_random(update: Update, context: CallbackContext):
 # <LESSON 5. API Telegram и CSV>
 
 
-def date_to_string(date, human=False, split='-'):
-    """Собираем из словаря date что-то удобное:
-    human=False: название <MM-DD-YYYY>.csv
-    human=True: <DD MM YYYY>, между цифрами split"""
-    # ВАЖНО: в репозитории формат файлов <МЕСЯЦ>-<ДЕНЬ>-<ГОД>!
-    if not human:
-        length = len(str(date['month']))
-        filename = str(date['month']).zfill(3 - length) + '-'
-        length = len(str(date['day']))
-        filename += str(date['day']).zfill(3 - length) + '-'
-        filename += str(date['year']) + '.csv'
-    else:
-        length = len(str(date['day']))
-        filename = str(date['day']).zfill(3 - length) + split
-        length = len(str(date['month']))
-        filename += str(date['month']).zfill(3 - length) + split
-        filename += str(date['year'])
-    return filename
-
-
 def filename_to_date(filename):
     """Собираем из названия файла удобный словарь для даты"""
     values = filename[:10].split('-')
-    keys = ['month', 'day', 'year']
-    date = {}
-    for k, v in zip(keys, values):
-        date[k] = int(v)
+    # datetime.date имеет вид year, month, day
+    date = datetime.date(int(values[2]), int(values[0]), int(values[1]))
     return date
 
 
 def search_back(date, stop_year, from_url):
     """Ищем на сайте <from_url> файлы с данными, начиная с даты,
     предшествующей <date>, пока не найдем или не достигнем <stop_year>"""
-    date = date.copy()
+    date = copy(date)
     while True:
-        date['day'] -= 1
-        if date['day'] == 0:
-            date['day'] = 31
-            date['month'] -= 1
-        if date['month'] == 0:
-            date['month'] = 31
-            date['year'] -= 1
-        if date['year'] == stop_year:
+        date = date - timedelta(1)
+        if date.year == stop_year:
             raise FileNotFoundError
-        filename = date_to_string(date)
+        filename = date.strftime("%m-%d-%Y.csv")
         url = from_url + filename
         r = requests.get(url)
         if r.status_code == 200:
@@ -351,10 +325,9 @@ def corono_stats(update: Update, context: CallbackContext):
     """Получить с github свежие данные по коронавирусу."""
     try:
         # проверяем сегодняшний день
-        date = datetime.datetime.now()
-        date = {'day': date.day, 'month': date.month, 'year': date.year}
+        date = datetime.datetime.today()
+        filename = date.strftime("%m-%d-%Y.csv")
 
-        filename = date_to_string(date)
         url = COVID_URL + filename
         r = requests.get(url)
 
@@ -364,11 +337,11 @@ def corono_stats(update: Update, context: CallbackContext):
         else:
             filename = search_back(date, STOP_YEAR, COVID_URL)
 
-        button_0 = InlineKeyboardButton('Мир', callback_data=f"0-covid-world-{filename}")
-        button_1 = InlineKeyboardButton('Китай', callback_data=f"1-covid-china-{filename}")
+        button_world = InlineKeyboardButton('Мир', callback_data=f"0-covid-world-{filename}")
+        button_china = InlineKeyboardButton('Китай', callback_data=f"1-covid-china-{filename}")
 
-        keyboard = [[button_0],
-                        [button_1]]
+        keyboard = [[button_world],
+                    [button_china]]
 
         keyboard_markup = InlineKeyboardMarkup(keyboard)
         update.message.reply_text('Где смотрим ситуацию?', reply_markup=keyboard_markup)
@@ -402,20 +375,33 @@ def get_china_data(database_in, database_out):
     notes = []
     with open(database_in, 'r') as file:
         reader = csv.DictReader(file)
-        for row in reader:
-            if row['Country/Region'].find('China') != -1:
-                notes.append(row)
+        try:  # пытаемся искать записи в новом формате
+            for row in reader:
+                if row['Country_Region'].find('China') != -1:
+                    notes.append(row)
+        except KeyError:  # не нашли: пытаемся искать в старом формате
+            for row in reader:
+                if row['Country/Region'].find('China') != -1:
+                    notes.append(row)
 
     with open(database_out, 'w', newline='') as csvfile:
         header = ['Province', 'Last Update', 'Current Cases']
         writer = csv.DictWriter(csvfile, fieldnames=header)
         writer.writeheader()
-        for row in notes:
-            writer.writerow({
-                'Province': row["Province/State"],
-                'Last Update': row['Last Update'],
-                'Current Cases': int(row['Confirmed']) - int(row['Recovered']) - int(row['Deaths'])
-            })
+        try:  # пытаемся искать записи в новом формате
+            for row in notes:
+                writer.writerow({
+                    'Province': row["Province_State"],
+                    'Last Update': row['Last_Update'],
+                    'Current Cases': int(row['Confirmed']) - int(row['Recovered']) - int(row['Deaths'])
+                })
+        except KeyError:  # не нашли: пытаемся искать в старом формате
+            for row in notes:
+                writer.writerow({
+                    'Province': row["Province/State"],
+                    'Last Update': row['Last Update'],
+                    'Current Cases': int(row['Confirmed']) - int(row['Recovered']) - int(row['Deaths'])
+                })
 
 
 @log_errors
@@ -431,8 +417,8 @@ def covid_china_handler(update: Update, context: CallbackContext, filename):
     get_china_data(filename_previous, 'china_data_prev.csv')
 
     # приятный глазу вид date_actual и date_previous для ответов бота
-    before = date_to_string(date_previous, human=True, split='/')
-    after = date_to_string(date_actual, human=True, split='/')
+    before = date_previous.strftime("%d/%m/%Y")
+    after = date_actual.strftime("%d/%m/%Y")
 
     update.callback_query.message.reply_text(f'Ну-ка, что там у китайцев?'
                                              f' Последний отчет - за {after}:')
@@ -441,9 +427,7 @@ def covid_china_handler(update: Update, context: CallbackContext, filename):
     # читаем свежую статистику по провинциям
     notes = []
     with open('china_data.csv', 'r') as csvfile:
-        reader = csv.DictReader(csvfile)
-        for row in reader:
-            notes.append(row)
+        notes = list(csv.DictReader(csvfile))
 
     # записываем зараженные на данный момент провинции, порядок как в notes
     infected_provinces = [i['Province'] for i in notes]
