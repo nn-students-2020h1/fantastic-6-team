@@ -1,9 +1,9 @@
 """Running the Bot"""
 
-from fantastic_chat_bot import FantasticBot
+from vita_chat_bot import VitaBot
 from setup import PROXY, TOKEN
 
-Vitalya = FantasticBot(TOKEN, PROXY)
+Vitalya = VitaBot(TOKEN, PROXY)
 Vitalya.logger.info('Start Bot')
 Vitalya.run_bot()
 

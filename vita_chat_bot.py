@@ -1,4 +1,4 @@
-"""Fantastic Bot by Team Six"""
+"""Vita Bot by Team Six"""
 
 # !/usr/local/bin/python3
 # -*- coding: utf-8 -*-
@@ -37,7 +37,7 @@ import auxillary as aux
 from CovidData import CovidData as Cvd
 
 
-class FantasticBot:
+class VitaBot:
     # <LESSON 6. OOP>
 
     def __init__(self, TOKEN, PROXY, HISTORY_SIZE=5):
@@ -186,7 +186,7 @@ class FantasticBot:
     @aux.log_errors
     def cat_facts_best(self, update: Update, context: CallbackContext):
         """Отправить самый популярный факт про котика с сайта."""
-        best = FantasticBot.cat_facts_main()[0]
+        best = VitaBot.cat_facts_main()[0]
         update.message.reply_text(best[1])
         update.message.reply_text(f"Этот факт оценили {best[0]} человек.")
 
@@ -194,7 +194,7 @@ class FantasticBot:
     @aux.log_errors
     def cat_facts_random(self, update: Update, context: CallbackContext):
         """Отправить рандомный факт с сайта."""
-        facts = FantasticBot.cat_facts_main()
+        facts = VitaBot.cat_facts_main()
         any_fact = facts[randint(0, len(facts)-1)]
         update.message.reply_text(any_fact[1])
         update.message.reply_text(f"Лайков: {any_fact[0]}")
@@ -394,7 +394,7 @@ class FantasticBot:
         try:
             # получаем из имени функции саму функцию, из нее - ее docstring
             # ловим возможные ошибки т.к. пользуемся eval
-            func = eval("FantasticBot."+response[2])
+            func = eval("VitaBot."+response[2])
 
             update.callback_query.message.reply_text("Узнать что-то ещё:", reply_markup=self.features_set_keyboard())
             update.callback_query.message.reply_text(f"Справка для функции: /{response[2]}")
@@ -495,7 +495,7 @@ class FantasticBot:
         self.updater.dispatcher.add_handler(CommandHandler('start', self.start))
         self.updater.dispatcher.add_handler(CommandHandler('help', self.help))
 
-        # <FEATURES FROM FANTASTIC SIX>
+        # <FEATURES>
         self.updater.dispatcher.add_handler(CommandHandler('features', self.features))
         self.updater.dispatcher.add_handler(CommandHandler('history', self.history))
         self.updater.dispatcher.add_handler(CommandHandler('history_size', self.history_size))
@@ -507,7 +507,7 @@ class FantasticBot:
         self.updater.dispatcher.add_handler(CommandHandler('corono_stats', self.corono_stats))
 
         self.updater.dispatcher.add_handler(CallbackQueryHandler(self.callback_worker))
-        # </FEATURES FROM FANTASTIC SIX>
+        # </FEATURES>
 
         # on noncommand i.e message - echo the message on Telegram
         self.updater.dispatcher.add_handler(MessageHandler(Filters.text, self.echo))
