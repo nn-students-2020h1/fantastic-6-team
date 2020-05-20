@@ -1,11 +1,13 @@
 """Additional functions for comfortable usage of bot"""
+
 # работа с файлами
 from os import path, remove
 # системное время для логов
 from datetime import datetime
 # корректный вывод docstring'ов для задекорированных команд
 from functools import wraps
-
+# очистка скачанных файлов
+from CovidData import CovidData as Cvd
 from telegram import Update
 
 # ----------------------------------------------------------
@@ -91,8 +93,9 @@ def cleaner(func_to_decorate):
         rip('log_actions_short.txt')
         rip('log_errors.txt')
         rip('log_errors_short.txt')
-        rip('china_data.csv')
-        rip('china_data_prev.csv')
+        rip('China_data.csv')
+        rip('China_data_prev.csv')
+        Cvd.remove_all_data()
         func_to_decorate(*args, **kwargs)
     return wrapper
 

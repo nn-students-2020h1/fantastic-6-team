@@ -24,12 +24,8 @@ import requests
 from random import randint
 
 # <LESSON 5>
-import csv
 from copy import copy
-from datetime import datetime, date, timedelta  # удобные операции со временем
-STOP_YEAR = 2019  # до какого года листать базу если не можем получить файл
-COVID_URL = 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/' \
-               'master/csse_covid_19_data/csse_covid_19_daily_reports/'
+from datetime import date, timedelta  # удобные операции со временем
 
 # <ADDITIONAL>
 # встроенная клавиатура в сообщениях и обработка нажатий
@@ -38,6 +34,7 @@ from telegram.ext import CallbackQueryHandler
 
 # <LESSON 6. OOP>
 import auxillary as aux
+from CovidData import CovidData as Cvd
 
 
 class FantasticBot:
@@ -47,6 +44,7 @@ class FantasticBot:
         self.bot = Bot(token=TOKEN, base_url=PROXY)
         self.updater = Updater(bot=self.bot, use_context=True)
         self.h_size = HISTORY_SIZE  # сколько действий в логе выводить по запросу
+        self.top_number = None  # сколько зараженных провинций выводить в топе
 
         # Enable logging
         logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -235,95 +233,49 @@ class FantasticBot:
     def corono_stats(self, update: Update, context: CallbackContext):
         """Получить с github свежие данные по коронавирусу."""
         try:
-            # проверяем сегодняшний день
-            date_obj = datetime.today()
-            filename = date_obj.strftime("%m-%d-%Y.csv")
+            latest_name = Cvd.find_latest()
 
-            url = COVID_URL + filename
-            r = requests.get(url)
-
-            if r.status_code == 200:
-                with open(filename, 'wb') as f:
-                    f.write(r.content)
-            else:
-                filename = FantasticBot.search_back(date_obj, STOP_YEAR, COVID_URL)
-
-            button_world = InlineKeyboardButton('Мир', callback_data=f"0-covid-world-{filename}")
-            button_china = InlineKeyboardButton('Китай', callback_data=f"1-covid-china-{filename}")
+            button_world = InlineKeyboardButton('Мир', callback_data=f"0-covid-world-{latest_name}")
+            button_china = InlineKeyboardButton('Китай', callback_data=f"1-covid-china-{latest_name}")
+            button_country = InlineKeyboardButton('Выбрать другую страну...', callback_data=f"2-covid-country-{latest_name}")
 
             keyboard = [[button_world],
-                        [button_china]]
+                        [button_china],
+                        [button_country]]
 
             keyboard_markup = InlineKeyboardMarkup(keyboard)
             update.message.reply_text('Где смотрим ситуацию?', reply_markup=keyboard_markup)
-
         except FileNotFoundError:
-            update.message.reply_text(f"Я проверил данные до {STOP_YEAR} года, файлов не найдено :(")
+            update.message.reply_text(f"Я проверил данные до {Cvd.STOP_YEAR} года, файлов не найдено :(")
         except ConnectionError:
-            update.message.reply_text(f"{url} недоступен, ошибка {r.status_code}.")
+            update.message.reply_text(f"URL недоступен")
         except IOError:
             update.message.reply_text('У меня нет твоего login.txt, сорян :(')
 
     @aux.log_errors
     def covid_world_handler(self, update: Update, context: CallbackContext, filename):
         """Получить данные по зараженным в  мире"""
-        with open(filename, 'r') as file:
-            reader = csv.DictReader(file)
-            infected = 0
-            dead = 0
-            for row in reader:
-                infected += (int(row['Confirmed']))
-                dead += (int(row['Deaths']))
+        stats = Cvd.basic_world_stats(filename)
         update.callback_query.message.reply_text(f'В сумме в мире было подтверждено'
-                                                 f' {infected} зараженных. Проверь сам:')
+                                                 f' {stats["infected"]} зараженных.')
+
         self.bot.send_document(chat_id=update.effective_chat.id, document=open(filename, 'rb'))
-        update.callback_query.message.reply_text(f'Да не переживай ты так, из них умерло всего {dead} человек!')
 
-    @staticmethod
-    def get_china_data(database_in, database_out):
-        """Получить из <database_in> таблицу co значениями из <header> и записать в <database_out>"""
-        notes = []
-        with open(database_in, 'r') as file:
-            reader = csv.DictReader(file)
-            try:  # пытаемся искать записи в новом формате
-                for row in reader:
-                    if row['Country_Region'].find('China') != -1:
-                        notes.append(row)
-            except KeyError:  # не нашли: пытаемся искать в старом формате
-                for row in reader:
-                    if row['Country/Region'].find('China') != -1:
-                        notes.append(row)
-
-        with open(database_out, 'w', newline='') as csvfile:
-            header = ['Province', 'Last Update', 'Current Cases']
-            writer = csv.DictWriter(csvfile, fieldnames=header)
-            writer.writeheader()
-            try:  # пытаемся искать записи в новом формате
-                for row in notes:
-                    writer.writerow({
-                        'Province': row["Province_State"],
-                        'Last Update': row['Last_Update'],
-                        'Current Cases': int(row['Confirmed']) - int(row['Recovered']) - int(row['Deaths'])
-                    })
-            except KeyError:  # не нашли: пытаемся искать в старом формате
-                for row in notes:
-                    writer.writerow({
-                        'Province': row["Province/State"],
-                        'Last Update': row['Last Update'],
-                        'Current Cases': int(row['Confirmed']) - int(row['Recovered']) - int(row['Deaths'])
-                    })
+        update.callback_query.message.reply_text(f'Да не переживай ты так, из них умерло всего {stats["dead"]} человек!')
 
     @aux.log_errors
     def covid_china_handler(self, update: Update, context: CallbackContext, filename):
         """Получить данные по зараженным в Китае"""
         # актуальная база и дата
-        date_actual = FantasticBot.filename_to_date(filename)
-        FantasticBot.get_china_data(filename, 'china_data.csv')
+        date_actual = Cvd.filename_to_date(filename)
+        Cvd.country_data_agregator('China', filename)
+        Cvd.CACHE.append('China_data.csv')
 
         # прошлая база и дата
-        filename_previous = FantasticBot.search_back(date_actual, STOP_YEAR, COVID_URL)
-        date_previous = FantasticBot.filename_to_date(filename_previous)
-        FantasticBot.get_china_data(filename_previous, 'china_data_prev.csv')
+        filename_previous = Cvd.step_back(date_actual)
+        date_previous = Cvd.filename_to_date(filename_previous)
+        Cvd.country_data_agregator('China', filename_previous, 'China_data_prev.csv')
+        Cvd.CACHE.append('China_data_prev.csv')
 
         # приятный глазу вид date_actual и date_previous для ответов бота
         before = date_previous.strftime("%d/%m/%Y")
@@ -331,47 +283,75 @@ class FantasticBot:
 
         update.callback_query.message.reply_text(f'Ну-ка, что там у китайцев?'
                                                  f' Последний отчет - за {after}:')
-        self.bot.send_document(chat_id=update.effective_chat.id, document=open('china_data.csv', 'rb'))
+        try:
+            self.bot.send_document(chat_id=update.effective_chat.id, document=open('China_data.csv', 'rb'))
+        except Exception as file_too_heavy: # заменить на исключение бросаемое телеграмом
+            update.callback_query.message.reply_text(f'Упс! {file_too_heavy}.')
 
-        # читаем свежую статистику по провинциям
-        notes = []
-        with open('china_data.csv', 'r') as csvfile:
-            notes = list(csv.DictReader(csvfile))
+        stats = Cvd.agregated_data_comparison('China_data.csv', 'China_data_prev.csv', self.top_number)
 
-        # записываем зараженные на данный момент провинции, порядок как в notes
-        infected_provinces = [i['Province'] for i in notes]
-
-        # читаем статистику по провинциям из прошлого файла
-        with open('china_data_prev.csv', 'r') as csvfile:
-            reader = csv.DictReader(csvfile)
-            for row in reader:
-                # для каждой строчки проверяем, не заражена ли сейчас провинция
-                # итерируемся именно по её номеру в списке notes
-                for number in range(len(infected_provinces)):
-                    if row['Province'] == infected_provinces[number]:
-                        # если заражена - по номеру в списке получаем число больных
-                        # и находим, на сколько оно изменилось с прошлого файла
-                        notes[number]['Current Cases'] = int(notes[number]['Current Cases'])\
-                                                         - int(row['Current Cases'])
-                        break
-
-        notes.sort(key=lambda d: int(d['Current Cases']), reverse=True)
-
-        BOOST_INFECTED_TOP = 5
-        message = ''
-        for data, counter in zip(notes, range(BOOST_INFECTED_TOP)):
-            message += f"{data['Province']} - {data['Current Cases']} новых заражённых.\n"
-
-        update.callback_query.message.reply_text(f'Топ-5 провинций по новым зараженным'
+        update.callback_query.message.reply_text(f'Топ провинций по новым зараженным'
                                                  f' за период с {before} по {after}:')
-        update.callback_query.message.reply_text(message)
-        update.callback_query.message.reply_text(f'Всего заражено провинций: {len(notes)} . Жуть какая.')
+        update.callback_query.message.reply_text(stats["mesg"])
+        update.callback_query.message.reply_text(f'Всего заражено провинций: {stats["amount"]}. Жуть какая.')
 
     # </LESSON 5. API Telegram и CSV>
     # ----------------------------------------------------------
+    # <LESSON 6-7. ООП и класс-обработчик CovidData>
+
+    @aux.log_errors
+    def covid_country_choice(self, update: Update, context: CallbackContext):
+        country_0 = InlineKeyboardButton('Великобритания', callback_data="0-ch_country-United Kingdom")
+        country_1 = InlineKeyboardButton('Испания', callback_data="2-ch_country-Spain")
+        country_2 = InlineKeyboardButton('Италия', callback_data="3-ch_country-Italy")
+        country_3 = InlineKeyboardButton('Россия', callback_data="4-ch_country-Russia")
+        country_4 = InlineKeyboardButton('Беларусь', callback_data="5-ch_country-Belarus")
+        country_5 = InlineKeyboardButton('Украина', callback_data="6-ch_country-Ukraine")
+
+        keyboard = [[country_0, country_1],
+                    [country_2, country_3],
+                    [country_4, country_5]]
+        keyboard_markup = InlineKeyboardMarkup(keyboard)
+        update.callback_query.message.reply_text('Выберите страну:', reply_markup=keyboard_markup)
+
+    @aux.log_errors
+    def covid_country_handler(self, update: Update, context: CallbackContext, countryname):
+        """Получить данные по зараженным в странах"""
+        filename = Cvd.find_latest()
+
+        # актуальная база и дата
+        date_actual = Cvd.filename_to_date(filename)
+        database_actual = countryname + '_data.csv'
+        Cvd.CACHE.append(database_actual)
+        Cvd.country_data_agregator(countryname, filename)
+
+        # прошлая база и дата
+        filename_previous = Cvd.step_back(date_actual)
+        date_previous = Cvd.filename_to_date(filename_previous)
+        database_previous = countryname + '_data_prev.csv'
+        Cvd.CACHE.append(database_previous)
+        Cvd.country_data_agregator(countryname, filename_previous, database_previous)
+
+        # приятный глазу вид date_actual и date_previous для ответов бота
+        before = date_previous.strftime("%d/%m/%Y")
+        after = date_actual.strftime("%d/%m/%Y")
+
+        update.callback_query.message.reply_text(f'{countryname}, отчет за {after}:')
+
+        stats = Cvd.agregated_data_comparison(database_actual, database_previous, self.top_number)
+
+        update.callback_query.message.reply_text(f'Топ регионов по новым зараженным'
+                                                 f' за период с {before} по {after}:')
+
+        update.callback_query.message.reply_text(stats["mesg"])
+        update.callback_query.message.reply_text(f'Данные по {stats["amount"]} территориальным единицам.')
+
+    # </LESSON 6-7. ООП и класс-обработчик CovidData>
+    # ----------------------------------------------------------
     # <ДОПОЛНИТЕЛЬНЫЕ ФУНКЦИИ, ОБРАБОТЧИКИ, КЛАВИАТУРЫ>
 
-    def features_set_keyboard(self):
+    @staticmethod
+    def features_set_keyboard():
         """Формирование клавиатуры справки по функциям"""
         # настраиваем кнопки
         feature_0 = InlineKeyboardButton('/start', callback_data="0-doc-start")
@@ -406,7 +386,6 @@ class FantasticBot:
         """Показать все возможности бота по запросу /features со справкой."""
 
         update.message.reply_text('Про какую из функций ты хочешь узнать?',
-
                                   reply_markup=self.features_set_keyboard())
 
     def features_handler(self, update: Update, context: CallbackContext, response):
@@ -467,6 +446,11 @@ class FantasticBot:
                     self.covid_world_handler(update, context, filename)
                 elif response[2] == 'china':
                     self.covid_china_handler(update, context, filename)
+                elif response[2] == 'country':
+                    self.covid_country_choice(update, context)
+            elif response[1] == "ch_country":
+                countryname = response[2]
+                self.covid_country_handler(update, context, countryname)
 
         except Exception as err_code:
             update.callback_query.message.reply_text("Упс! Ошибка при обработке нажатия кнопок!")
@@ -481,7 +465,7 @@ class FantasticBot:
     @aux.log_actions
     @aux.log_errors
     def start(update: Update, context: CallbackContext):
-        """Выкинуть мусор и отправить приветственное сообщение по запросу /start."""
+        """Сбросить данные и отправить приветственное сообщение по запросу /start."""
         update.message.reply_text(f'Привет, {update.effective_user.first_name}!')
 
     @staticmethod
